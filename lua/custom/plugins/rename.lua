@@ -3,6 +3,6 @@ return {
   name = 'IncRename',
   config = function()
     require('inc_rename').setup {}
-    vim.keymap.set('n', '<leader>rn', ':IncRename ')
+    vim.keymap.set('n', '<leader>cr', ':IncRename ')
   end,
 }
