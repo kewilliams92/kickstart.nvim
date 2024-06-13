@@ -7,12 +7,11 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
-        python = { 'mypy', 'ruff' },
         javascript = { 'eslint_d' },
         typescript = { 'eslint_d' },
         javascriptreact = { 'eslint_d' },
         typescriptreact = { 'eslint_d' },
-        go = { 'golangci-lint' },
+        go = { 'golangcilint' },
         svelte = { 'eslint_d' },
       }
 
@@ -50,6 +49,8 @@ return {
 
       -- Create autocommand which carries out the actual linting
       -- on the specified events.
+      vim.keymap.set('n', '<leader>ll', '<cmd>lua require("lint").try_lint()<CR>', { noremap = true })
+      vim.keymap.set('n', '<leader>fmp', ':silent !black %<CR>', { noremap = true })
       local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
       vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
         group = lint_augroup,
