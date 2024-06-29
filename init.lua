@@ -184,6 +184,17 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
+--Window management
+vim.keymap.set('n', '<leader>sv', '<C-w>v', { desc = 'Split [v]ertically' })
+vim.keymap.set('n', '<leader>sy', '<C-w>s', { desc = 'Split window horizontally using [s]plit' })
+vim.keymap.set('n', '<leader>se', '<C-w>=', { desc = 'Equalize window sizes' })
+vim.keymap.set('n', '<leader>sx', '<cmd>close<CR>', { desc = 'Close current window' })
+
+vim.keymap.set('n', '<leader>to', '<cmd>tabnew<CR>', { desc = 'Open a new [t]ab' })
+vim.keymap.set('n', '<leader>tx', '<cmd>tabclose<CR>', { desc = 'Close current [t]ab' })
+vim.keymap.set('n', '<leader>tn', '<cmd>tabn<CR>', { desc = 'Go to [n]ext tab' })
+vim.keymap.set('n', '<leader>tp', '<cmd>tabp<CR>', { desc = 'Go to [p]revious tab' })
+vim.keymap.set('n', '<leader>tf', '<cmd>tabnew %<CR>', { desc = 'Open current buffer in a new [f]tab' })
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
