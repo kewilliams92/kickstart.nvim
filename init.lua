@@ -83,7 +83,7 @@ vim.o.confirm = true
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { silent = true })
 
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
@@ -567,6 +567,12 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
+        'prettierd',
+        'prettier',
+        'eslint_d',
+        'black',
+        'isort',
+        'markdownlint',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -610,11 +616,11 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -808,7 +814,32 @@ require('lazy').setup({
     branch = 'main',
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
     config = function()
-      local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+      local parsers = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'json',
+        'jsonc',
+        'css',
+        'sql',
+        'yaml',
+        'javascript',
+        'typescript',
+        'tsx',
+        'jsx',
+        'python',
+        'regex',
+        'gitignore',
+        'gitcommit',
+      }
       require('nvim-treesitter').install(parsers)
       vim.api.nvim_create_autocmd('FileType', {
         callback = function(args)
