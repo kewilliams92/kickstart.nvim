@@ -25,7 +25,7 @@ return {
           anthropic = function()
             return require('codecompanion.adapters').extend('anthropic', {
               env = {
-                api_key = 'cmd:gpg --batch --quiet --decrypt /home/kwarch/.clearance/api_key.gpg',
+                api_key = 'cmd:gpg --batch --quiet --decrypt /home/kwarch/.clearance/secrets.env.gpg | grep ANTHROPIC_API_KEY | cut -d= -f2',
               },
             })
           end,

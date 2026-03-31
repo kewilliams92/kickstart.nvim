@@ -4,6 +4,13 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Filter noisy startup notifications before plugins load
+local _original_notify = vim.notify
+vim.notify = function(msg, level, opts)
+  if type(msg) == 'string' and msg:find 'nvim%-cmp is not available' then return end
+  _original_notify(msg, level, opts)
+end
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
@@ -77,6 +84,35 @@ vim.o.scrolloff = 10
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
 vim.o.confirm = true
+
+-- Indentation defaults (4 spaces — Go, Rust, Python, etc.)
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
+vim.o.softtabstop = 4
+vim.o.expandtab = true
+
+-- Per-filetype indentation overrides
+vim.api.nvim_create_autocmd('FileType', {
+  desc = 'JS/TS community standard: 2 spaces',
+  pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'html', 'css', 'yaml', 'lua' },
+  callback = function()
+    vim.bo.tabstop = 2
+    vim.bo.shiftwidth = 2
+    vim.bo.softtabstop = 2
+    vim.bo.expandtab = true
+  end,
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  desc = 'C lineage: 8-wide real tabs',
+  pattern = { 'c', 'cpp', 'make' },
+  callback = function()
+    vim.bo.tabstop = 8
+    vim.bo.shiftwidth = 8
+    vim.bo.softtabstop = 8
+    vim.bo.expandtab = false
+  end,
+})
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -234,6 +270,8 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
         { 'gr', group = 'LSP Actions', mode = { 'n' } },
+        { '<leader>c', group = '[C]odeCompanion', mode = { 'n', 'v' } },
+        { '<leader>n', group = '[N]oice' },
       },
     },
   },
@@ -497,7 +535,6 @@ require('lazy').setup({
                 vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
               end,
             })
-
           end
 
           -- The following code creates a keymap to toggle inlay hints in your
@@ -631,6 +668,15 @@ require('lazy').setup({
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
+      {
+        'supermaven-inc/supermaven-nvim',
+        opts = {
+          disable_inline_completion = true, -- disables inline completion for use with cmp
+          disable_keymaps = true, -- disables built in keymaps for more manual control
+        },
+      },
+      'huijiro/blink-cmp-supermaven',
+      'milanglacier/minuet-ai.nvim',
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
@@ -657,6 +703,7 @@ require('lazy').setup({
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
+      enabled = function() return not vim.tbl_contains({ 'codecompanion' }, vim.bo.filetype) end,
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions
         --   <c-y> to accept ([y]es) the completion.
@@ -692,25 +739,62 @@ require('lazy').setup({
       },
 
       completion = {
-        -- By default, you may press `<c-space>` to show the documentation.
-        -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        -- Show a floating mini window beside the completion menu previewing the full
+        -- suggestion instead of inline ghost text, which is visually cleaner for AI completions.
+        ghost_text = { enabled = false },
+        documentation = { auto_show = true, auto_show_delay_ms = 0 },
+        -- Prevent blink from prefetching on insert, which re-triggers completion
+        -- requests during <C-p>/<C-n> navigation and resets the menu (especially
+        -- in TS files where LSP sources are heavier).
+        trigger = { prefetch_on_insert = false },
+        -- Disable auto_insert so <C-n>/<C-p> only moves the highlight without
+        -- writing to the buffer. Without this, holding the keys rapidly inserts
+        -- preview text on every step, which can close or corrupt the menu.
+        list = { selection = { preselect = true, auto_insert = false } },
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets' },
+        default = { 'supermaven', 'minuet', 'lsp', 'path', 'buffer', 'snippets' },
+        providers = {
+          minuet = {
+            name = 'minuet',
+            module = 'minuet.blink',
+            async = true,
+            -- Match minuet.config.request_timeout * 1000
+            -- timeout_ms = 3000,
+            -- score_offset = 50, -- surface minuet above LSP suggestions
+            -- min_keyword_length = 3, -- don't trigger AI requests on 1-2 char inputs
+          },
+          supermaven = {
+            name = 'supermaven',
+            module = 'blink-cmp-supermaven',
+            async = true,
+          },
+        },
       },
 
       snippets = { preset = 'luasnip' },
 
-      -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
-      -- which automatically downloads a prebuilt binary when enabled.
-      --
-      -- By default, we use the Lua implementation instead, but you may enable
-      -- the rust implementation via `'prefer_rust_with_warning'`
-      --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = {
+        implementation = 'prefer_rust_with_warning',
+        max_typos = function(keyword) return math.floor(#keyword / 4) end,
+        frecency = {
+          enabled = true,
+          path = vim.fn.stdpath 'state' .. '/blink/cmp/frecency.dat',
+          unsafe_no_lock = false,
+        },
+        use_proximity = true,
+        sorts = { 'score', 'sort_text' },
+        prebuilt_binaries = {
+          download = false, -- install binary manually (e.g. via AUR: blink-cmp-fuzzy or cargo build)
+          ignore_version_mismatch = false,
+          force_version = nil,
+          force_system_triple = nil,
+          extra_curl_args = {},
+          proxy = { from_env = true, url = nil },
+        },
+      },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
@@ -768,6 +852,7 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
+      require('mini.move').setup()
       require('mini.starter').setup {
         header = table.concat({
           'Neovim',
@@ -828,7 +913,7 @@ require('lazy').setup({
         'vim',
         'vimdoc',
         'json',
-        'jsonc',
+        -- 'jsonc',
         'css',
         'sql',
         'yaml',

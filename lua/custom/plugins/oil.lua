@@ -11,5 +11,13 @@ return {
   config = function()
     require('oil').setup {}
     vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory' })
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'oil',
+      callback = function()
+        vim.opt_local.foldenable = false
+        vim.opt_local.foldmethod = 'manual'
+        vim.opt_local.foldexpr = ''
+      end,
+    })
   end,
 }

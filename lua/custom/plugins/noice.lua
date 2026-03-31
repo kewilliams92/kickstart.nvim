@@ -45,8 +45,10 @@ return {
         lsp_doc_border = false, -- add a border to hover docs and signature help
       },
     }
+    local noice_toggle = require 'custom.noice_toggle'
+
     vim.keymap.set('n', '<leader>nd', '<cmd>NoiceDismiss<cr>', { desc = '[N]oice [D]ismiss' })
-    vim.keymap.set('n', '<leader>nh', '<cmd>NoiceHistory<cr>', { desc = '[N]oice [H]istory' })
+    vim.keymap.set('n', '<leader>nh', noice_toggle.toggle_noice_history, { desc = '[N]oice [H]istory toggle' })
     vim.keymap.set('n', '<leader>nl', '<cmd>NoiceLast<cr>', { desc = '[N]oice [L]ast' })
   end,
 }
