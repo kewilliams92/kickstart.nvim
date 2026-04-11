@@ -25,8 +25,8 @@ vim.o.number = true
 --  Experiment for yourself to see if you like it!
 vim.o.relativenumber = true
 
--- Enable mouse mode, can be useful for resizing splits for example!
-vim.o.mouse = 'a'
+-- Mouse disabled to prevent accidental touchpad clicks
+vim.o.mouse = ''
 
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
@@ -167,6 +167,13 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+-- Resize splits with Alt+hjkl (use counts for bigger steps, e.g. 5<A-l>)
+vim.keymap.set('n', '<A-h>', '<C-w><', { desc = 'Resize split left' })
+vim.keymap.set('n', '<A-l>', '<C-w>>', { desc = 'Resize split right' })
+vim.keymap.set('n', '<A-k>', '<C-w>+', { desc = 'Resize split up' })
+vim.keymap.set('n', '<A-j>', '<C-w>-', { desc = 'Resize split down' })
+vim.keymap.set('n', '<A-=>', '<C-w>=', { desc = 'Equalize split sizes' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -562,6 +569,7 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
+        vtsls = {},
 
         stylua = {}, -- Used to format Lua code
 
@@ -671,7 +679,7 @@ require('lazy').setup({
       {
         'supermaven-inc/supermaven-nvim',
         opts = {
-          disable_inline_completion = true, -- disables inline completion for use with cmp
+          disable_inline_completion = false, -- disables inline completion for use with cmp
           disable_keymaps = true, -- disables built in keymaps for more manual control
         },
       },

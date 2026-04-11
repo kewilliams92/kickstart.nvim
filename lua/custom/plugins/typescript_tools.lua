@@ -1,26 +1,37 @@
 return {
-  'pmizio/typescript-tools.nvim',
-  dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-  ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-  init = function()
-    vim.filetype.add {
-      extension = {
-        jsx = 'javascriptreact',
-        tsx = 'typescriptreact',
-      },
-    }
-  end,
-  opts = {
-    on_attach = function(client, bufnr)
-      -- gd / gf: jump to the actual source file, skipping .d.ts declaration files
-      local go_to_source = require('typescript-tools.api').go_to_source_definition
-      vim.keymap.set('n', 'gd', go_to_source, { buffer = bufnr, desc = 'LSP: Go to Source Definition' })
-      vim.keymap.set('n', 'gf', go_to_source, { buffer = bufnr, desc = 'LSP: Go to File (Source Definition)' })
-    end,
-    settings = {
-      tsserver_file_preferences = {
-        importModuleSpecifierPreference = 'non-relative',
-      },
-    },
-  },
+  -- 'pmizio/typescript-tools.nvim',
+  -- dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+  -- ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  -- init = function()
+  --   vim.filetype.add {
+  --     extension = {
+  --       jsx = 'javascriptreact',
+  --       tsx = 'typescriptreact',
+  --     },
+  --   }
+  -- end,
+  -- opts = {
+  --   on_attach = function(client, bufnr)
+  --     -- gd / gf: jump to the actual source file, skipping .d.ts declaration files
+  --     local go_to_source = require('typescript-tools.api').go_to_source_definition
+  --     vim.keymap.set('n', 'gd', go_to_source, { buffer = bufnr, desc = 'LSP: Go to Source Definition' })
+  --     vim.keymap.set('n', 'gf', go_to_source, { buffer = bufnr, desc = 'LSP: Go to File (Source Definition)' })
+  --   end,
+  --   settings = {
+  --     -- Let typescript-tools auto-detect the project-local tsserver.
+  --     -- A hard-coded relative path breaks when the workspace root doesn't align
+  --     -- with the directory that contains node_modules/typescript (e.g. monorepos,
+  --     -- nested projects, or when nvim cwd != project root).
+  --     separate_diagnostic_server = true,
+  --     tsserver_file_preferences = {
+  --       importModuleSpecifierPreference = 'non-relative',
+  --       includeCompletionsForModuleExports = true,
+  --       includeCompletionsWithInsertText = true,
+  --       includePackageJsonAutoImports = 'on',
+  --       -- Required for tsserver to write import edits into files it hasn't
+  --       -- explicitly opened yet (e.g. the first time a symbol is auto-imported).
+  --       allowTextChangesInNewFiles = true,
+  --     },
+  --   },
+  -- },
 }

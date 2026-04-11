@@ -19,8 +19,10 @@ return {
         override = {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,
-          ['cmp.entry.get_documentation'] = true, -- requires hrsh7th/nvim-cmp
+          -- NOTE: cmp.entry.get_documentation removed — requires hrsh7th/nvim-cmp which is not installed
         },
+        -- blink.cmp handles signature help; let it own that window to avoid two popups
+        signature = { enabled = false },
       },
       routes = {
         {
